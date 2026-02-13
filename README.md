@@ -20,6 +20,7 @@
 | 路由                       | 方法 | 说明                                  |
 | -------------------------- | ---- | ------------------------------------- |
 | `/v1/audio/transcriptions` | POST | 音频转文字（OpenAI Whisper API 兼容） |
+| `/v1/audio/speech`         | POST | 语音合成（OpenAI TTS API 兼容）       |
 | `/v1/models`               | GET  | 列出可用模型                          |
 | `/health`                  | GET  | 健康检查                              |
 
@@ -46,6 +47,7 @@
 
 ```bash
 pip install -r requirements.txt
+# 可选， api key 可从请求中进行传入
 export DASHSCOPE_API_KEY=sk-xxx
 python main.py
 ```
@@ -54,7 +56,10 @@ python main.py
 
 ```bash
 docker build -t dashscope-router .
+# 可选， api key 可从请求中进行传入
 docker run -d -p 8000:8000 -e DASHSCOPE_API_KEY=sk-xxx dashscope-router
+# 直接启动
+docker run -d -p 8000:8000 dashscope-router
 ```
 
 ## 使用示例
