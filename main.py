@@ -133,5 +133,5 @@ async def health():
 # 启动入口
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", "8081"))
+    port = int(os.getenv("PORT", "8000"))
     uvicorn.run(app, host="0.0.0.0", port=port)
