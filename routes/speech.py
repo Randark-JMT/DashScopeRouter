@@ -9,6 +9,8 @@ import os
 import time
 from typing import Optional
 
+import httpx
+
 import dashscope
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import Response
@@ -201,26 +203,55 @@ async def audio_speech(
         )
 
     # 提取音频数据
+    # DashScope TTS 响应结构: output.audio.url / output.audio.data
     try:
-        audio_content = response.output.choices[0].message.content[0]
-        # DashScope TTS 返回的音频可能在 "audio" 字段中（base64 或 URL）
-        if "audio" in audio_content:
-            audio_data_uri = audio_content["audio"]
-            # 解析 data URI: data:<mime>;base64,<data>
-            if audio_data_uri.startswith("data:"):
-                b64_part = audio_data_uri.split(",", 1)[1]
+        audio_obj = response.output.get("audio") if isinstance(response.output, dict) else getattr(response.output, "audio", None)
+
+        if audio_obj is None:
+            raise ValueError(f"响应中未找到 audio 字段: {response.output}")
+
+        # audio_obj 可能是 dict 或对象
+        if isinstance(audio_obj, dict):
+            audio_url = audio_obj.get("url", "")
+            audio_data = audio_obj.get("data", "")
+        else:
+            audio_url = getattr(audio_obj, "url", "")
+            audio_data = getattr(audio_obj, "data", "")
+
+        if audio_data:
+            # 内联 base64 数据
+            if audio_data.startswith("data:"):
+                b64_part = audio_data.split(",", 1)[1]
                 audio_bytes = base64.b64decode(b64_part)
             else:
-                # 可能是原始 base64
-                audio_bytes = base64.b64decode(audio_data_uri)
+                audio_bytes = base64.b64decode(audio_data)
+            logger.info("从内联 data 获取音频, size=%d bytes", len(audio_bytes))
+        elif audio_url:
+            # 从 URL 下载音频
+            logger.info("从 URL 下载音频: %s", audio_url[:120])
+            async with httpx.AsyncClient(timeout=60) as client:
+                dl_resp = await client.get(audio_url)
+                dl_resp.raise_for_status()
+                audio_bytes = dl_resp.content
+            logger.info("音频下载完成, size=%d bytes", len(audio_bytes))
         else:
-            raise ValueError(f"响应中未找到音频数据: {audio_content}")
+            raise ValueError(f"audio 字段中无 url 也无 data: {audio_obj}")
+
     except (AttributeError, IndexError, KeyError, TypeError, ValueError) as e:
         logger.error("无法解析 DashScope TTS 响应: %s | raw=%s", e, response)
         raise HTTPException(
             status_code=502,
             detail=build_openai_error(
                 f"无法解析上游 TTS 响应: {e}",
+                error_type="upstream_error",
+            ),
+        )
+    except httpx.HTTPError as e:
+        logger.error("下载音频失败: %s", e)
+        raise HTTPException(
+            status_code=502,
+            detail=build_openai_error(
+                f"下载音频失败: {e}",
                 error_type="upstream_error",
             ),
         )
