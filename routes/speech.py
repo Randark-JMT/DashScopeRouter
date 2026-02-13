@@ -65,9 +65,24 @@ RESPONSE_MIME: dict[str, str] = {
 }
 
 
+# OpenAI 模型名 → DashScope 模型名映射
+MODEL_MAP: dict[str, str] = {
+    "tts-1": "qwen3-tts-flash",
+    "tts-1-hd": "qwen3-tts-flash",
+}
+
+# 默认音色（当请求中未提供 voice 时使用）
+DEFAULT_VOICE = "Chelsie"
+
+
 def _resolve_voice(voice: str) -> str:
     """将 OpenAI voice 名映射到 DashScope voice，未匹配则透传。"""
     return VOICE_MAP.get(voice.lower(), voice)
+
+
+def _resolve_model(model: str) -> str:
+    """将 OpenAI 模型名映射到 DashScope 模型名，未匹配则透传。"""
+    return MODEL_MAP.get(model.lower(), model)
 
 
 # ---------------------------------------------------------------------------
@@ -92,36 +107,63 @@ async def audio_speech(
     # 1. 鉴权
     api_key = extract_api_key(authorization)
 
-    # 2. 解析请求体
-    try:
-        body = await request.json()
-    except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail=build_openai_error("请求体必须为有效的 JSON。"),
-        )
+    # 2. 解析请求体（兼容 JSON 和 form-data）
+    content_type = request.headers.get("content-type", "")
+    logger.debug("TTS 请求 Content-Type: %s", content_type)
+
+    body: dict = {}
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+        except Exception as e:
+            logger.error("JSON 解析失败: %s", e)
+            raise HTTPException(
+                status_code=400,
+                detail=build_openai_error("请求体必须为有效的 JSON。"),
+            )
+    elif "multipart/form-data" in content_type or "application/x-www-form-urlencoded" in content_type:
+        form = await request.form()
+        body = dict(form)
+        logger.debug("从 form-data 解析请求体: keys=%s", list(body.keys()))
+    else:
+        # 尝试按 JSON 解析
+        try:
+            body = await request.json()
+        except Exception:
+            raw = await request.body()
+            logger.error("无法解析请求体, Content-Type=%s, raw=%s", content_type, raw[:500])
+            raise HTTPException(
+                status_code=400,
+                detail=build_openai_error(
+                    f"不支持的 Content-Type: {content_type}。请使用 application/json。"
+                ),
+            )
+
+    logger.debug("TTS 请求体: %s", {k: (v[:50] if isinstance(v, str) and len(v) > 50 else v) for k, v in body.items()})
 
     model = body.get("model", DEFAULT_MODEL)
     text = body.get("input")
-    voice = body.get("voice")
-    response_format = body.get("response_format", "mp3").lower()
+    voice = body.get("voice", "") or ""
+    response_format = str(body.get("response_format", "mp3")).lower()
 
     if not text:
+        logger.warning("TTS 请求缺少 input 参数, body keys=%s", list(body.keys()))
         raise HTTPException(
             status_code=400,
             detail=build_openai_error("缺少必填参数: input"),
         )
-    if not voice:
-        raise HTTPException(
-            status_code=400,
-            detail=build_openai_error("缺少必填参数: voice"),
-        )
 
+    # voice 未提供时使用默认音色
+    if not voice:
+        voice = DEFAULT_VOICE
+        logger.info("voice 未提供，使用默认音色: %s", DEFAULT_VOICE)
+
+    ds_model = _resolve_model(model)
     ds_voice = _resolve_voice(voice)
 
     logger.info(
-        "收到 TTS 请求: model=%s, voice=%s→%s, text_length=%d, format=%s",
-        model, voice, ds_voice, len(text), response_format,
+        "收到 TTS 请求: model=%s→%s, voice=%s→%s, text_length=%d, format=%s",
+        model, ds_model, voice, ds_voice, len(text), response_format,
     )
 
     # 3. 调用 DashScope
@@ -129,7 +171,7 @@ async def audio_speech(
         start_ts = time.time()
         response = dashscope.MultiModalConversation.call(
             api_key=api_key,
-            model=model,
+            model=ds_model,
             text=text,
             voice=ds_voice,
             stream=False,

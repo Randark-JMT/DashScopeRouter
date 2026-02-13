@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from routes.transcriptions import SUPPORTED_MODELS as ASR_MODELS
-from routes.speech import SUPPORTED_MODELS as TTS_MODELS
+from routes.speech import SUPPORTED_MODELS as TTS_MODELS, MODEL_MAP as TTS_MODEL_MAP
 
 router = APIRouter()
 
@@ -30,6 +30,17 @@ async def list_models():
         models.append(
             {
                 "id": m,
+                "object": "model",
+                "created": 0,
+                "owned_by": "dashscope",
+            }
+        )
+
+    # 添加 OpenAI 兼容模型别名（如 tts-1 → qwen3-tts-flash）
+    for alias in TTS_MODEL_MAP:
+        models.append(
+            {
+                "id": alias,
                 "object": "model",
                 "created": 0,
                 "owned_by": "dashscope",
