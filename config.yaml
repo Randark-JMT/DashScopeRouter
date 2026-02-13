@@ -12,3 +12,9 @@ ua_whitelist:
     # - "Python/*"
     # - "curl/*"
     # - "*"  # 允许所有 UA
+
+# 内存管理
+# 音频请求一般是随用随结束的，大对象在请求处理完成后会立即主动释放
+# gc_interval_seconds: 定时强制 GC 回收的间隔（秒），防止内存磎片累积
+memory:
+  gc_interval_seconds: 300  # 每 5 分钟强制 GC 一次

@@ -3,6 +3,7 @@
 """
 
 import base64
+import gc
 import io
 import logging
 import os
@@ -99,11 +100,11 @@ async def audio_speech(
     OpenAI 兼容的语音合成接口。
 
     请求体 JSON:
-      - model (str, required): 模型名
-      - input (str, required): 要合成的文本
-      - voice (str, required): 音色名称
-      - response_format (str, optional): 音频格式，默认 mp3
-      - speed (float, optional): 语速（暂不支持，忽略）
+        - model (str, required): 模型名
+        - input (str, required): 要合成的文本
+        - voice (str, required): 音色名称
+        - response_format (str, optional): 音频格式，默认 mp3
+        - speed (float, optional): 语速（暂不支持，忽略）
     """
 
     # 1. 鉴权
@@ -136,9 +137,7 @@ async def audio_speech(
             logger.error("无法解析请求体, Content-Type=%s, raw=%s", content_type, raw[:500])
             raise HTTPException(
                 status_code=400,
-                detail=build_openai_error(
-                    f"不支持的 Content-Type: {content_type}。请使用 application/json。"
-                ),
+                detail=build_openai_error(f"不支持的 Content-Type: {content_type}。请使用 application/json。"),
             )
 
     logger.debug("TTS 请求体: %s", {k: (v[:50] if isinstance(v, str) and len(v) > 50 else v) for k, v in body.items()})
@@ -165,7 +164,12 @@ async def audio_speech(
 
     logger.info(
         "收到 TTS 请求: model=%s→%s, voice=%s→%s, text_length=%d, format=%s",
-        model, ds_model, voice, ds_voice, len(text), response_format,
+        model,
+        ds_model,
+        voice,
+        ds_voice,
+        len(text),
+        response_format,
     )
 
     # 3. 调用 DashScope
@@ -255,6 +259,10 @@ async def audio_speech(
                 error_type="upstream_error",
             ),
         )
+
+    # 释放 DashScope 响应对象，仅保留 audio_bytes
+    del response
+    gc.collect()
 
     mime = RESPONSE_MIME.get(response_format, "audio/mpeg")
     logger.info("TTS 合成完成: %.2fs, audio_size=%d bytes", elapsed, len(audio_bytes))

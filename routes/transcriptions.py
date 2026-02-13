@@ -3,6 +3,7 @@
 """
 
 import base64
+import gc
 import logging
 import os
 import time
@@ -87,12 +88,15 @@ async def audio_transcriptions(
         )
 
     mime_type = resolve_mime_type(file)
+    audio_size = len(audio_bytes)
     base64_str = base64.b64encode(audio_bytes).decode()
+    del audio_bytes  # 立即释放原始音频字节
     data_uri = f"data:{mime_type};base64,{base64_str}"
+    del base64_str  # 立即释放 base64 字符串（data_uri 已包含）
 
     logger.info(
         "收到转写请求: model=%s, file=%s, size=%d bytes, mime=%s, language=%s, response_format=%s",
-        model, file.filename, len(audio_bytes), mime_type, language, response_format,
+        model, file.filename, audio_size, mime_type, language, response_format,
     )
 
     # 3. 构造 DashScope 请求
@@ -126,6 +130,10 @@ async def audio_transcriptions(
                 error_type="upstream_error",
             ),
         )
+    finally:
+        # 请求发出后立即释放 data_uri（包含完整 base64 音频）
+        del data_uri, messages
+        gc.collect()
 
     # 5. 解析响应
     if response.status_code != 200:

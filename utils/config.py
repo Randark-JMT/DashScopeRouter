@@ -20,6 +20,9 @@ _DEFAULT_CONFIG: dict[str, Any] = {
         "enabled": False,
         "rules": [],
     },
+    "memory": {
+        "gc_interval_seconds": 300,
+    },
 }
 
 # ---------------------------------------------------------------------------

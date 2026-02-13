@@ -2,6 +2,8 @@
 DashScope Router - OpenAI 兼容的多模态 API 中转服务
 """
 
+import asyncio
+import gc
 import logging
 import os
 import time
@@ -11,7 +13,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from utils.config import check_ua_allowed, load_config
+from utils.config import check_ua_allowed, get_config, load_config
 from routes.transcriptions import router as transcriptions_router
 from routes.speech import router as speech_router
 from routes.models import router as models_router
@@ -95,6 +97,26 @@ async def request_logging_and_ua_filter(request: Request, call_next):
 app.include_router(transcriptions_router)
 app.include_router(speech_router)
 app.include_router(models_router)
+
+
+# ---------------------------------------------------------------------------
+# 后台任务：定时 GC 回收，防止内存碎片累积
+# ---------------------------------------------------------------------------
+async def _periodic_gc():
+    """根据配置的间隔定时执行 gc.collect()。"""
+    cfg = get_config()
+    interval = cfg.get("memory", {}).get("gc_interval_seconds", 300)
+    logger.info("定时 GC 已启动, 间隔=%d 秒", interval)
+    while True:
+        await asyncio.sleep(interval)
+        collected = gc.collect()
+        if collected:
+            logger.debug("定时 GC: 回收了 %d 个对象", collected)
+
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(_periodic_gc())
 
 
 # ---------------------------------------------------------------------------
