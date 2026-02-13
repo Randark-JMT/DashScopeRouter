@@ -9,14 +9,14 @@
 ## TODO
 
 - [ ] 图像生成
-  - [ ] 文本生成图像
+  - [ ] 文本生成图像（text-to-image）
   - [ ] 图像编辑
     - [ ] 图像编辑-千问
 - [ ] 视频生成
 - [x] 语音合成
-  - [x] 语音合成-千问
+  - [x] 语音合成-千问（qwen-tts）
 - [x] 语音识别
-  - [x] 录音文件识别-千问
+  - [x] 录音文件识别-千问（qwen-speech-recognition）
 - [ ] 语音翻译
 
 ## 支持的接口
@@ -30,10 +30,11 @@
 
 ## 支持的模型
 
-- `qwen3-asr-flash`
-- `qwen3-asr-flash-2025-09-08`
-- `qwen3-asr-flash-filetrans`
-- `qwen3-asr-flash-filetrans-2025-11-17`
+- `qwen-tts*`
+- `qwen3-tts*`
+- `qwen3-asr*`
+- `qwen-image*`
+- `wan*`
 
 ## 快速开始
 
@@ -41,7 +42,7 @@
 
 | 变量                 | 必须 | 说明                                                             |
 | -------------------- | ---- | ---------------------------------------------------------------- |
-| `DASHSCOPE_API_KEY`  | 是*  | DashScope API Key（也可在请求 Header 中传入）                    |
+| `DASHSCOPE_API_KEY`  | 否   | DashScope API Key（也可在请求 Header 中传入）                    |
 | `DASHSCOPE_BASE_URL` | 否   | DashScope API 地址，默认 `https://dashscope.aliyuncs.com/api/v1` |
 | `DEFAULT_ASR_MODEL`  | 否   | 默认模型，默认 `qwen3-asr-flash`                                 |
 | `DEFAULT_TTS_MODEL`  | 否   | 默认模型，默认 `qwen3-tts-flash`                                 |
@@ -52,7 +53,7 @@
 ```bash
 pip install -r requirements.txt
 # 可选， api key 可从请求中进行传入
-export DASHSCOPE_API_KEY=sk-xxx
+# export DASHSCOPE_API_KEY=sk-xxx
 python main.py
 ```
 
@@ -60,10 +61,10 @@ python main.py
 
 ```bash
 docker build -t dashscope-router .
-# 可选， api key 可从请求中进行传入
-docker run -d -p 8000:8000 -e DASHSCOPE_API_KEY=sk-xxx dashscope-router
 # 直接启动
 docker run -d -p 8000:8000 dashscope-router
+# 可选， api key 可从请求中进行传入
+docker run -d -p 8000:8000 -e DASHSCOPE_API_KEY=sk-xxx dashscope-router
 ```
 
 ## 使用示例

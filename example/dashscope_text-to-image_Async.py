@@ -5,9 +5,11 @@
 # 示例代码以 qwen-image-plus 为例，但同样适用于万相模型。
 # SDK 在底层封装了异步处理逻辑，上层接口表现为同步调用（即单次请求并等待最终结果返回）
 
-# Support models
-# qwen-image-max, qwen-image-max-2025-12-30, qwen-image-plus, qwen-image-plus-2026-01-09, qwen-image
+# Support models (Async)
+# qwen-image-plus, qwen-image-plus-2026-01-09, qwen-image
 # wan2.6-t2i, wan2.5-t2i-preview, wan2.2-t2i-plus, wan2.2-t2i-flash, wanx2.1-t2i-plus, wanx2.1-t2i-turbo, wanx2.0-t2i-turbo
+
+# SDK 在底层封装了异步处理逻辑，上层接口表现为同步调用（即单次请求并等待最终结果返回）；而 curl 示例则对应两个独立的异步 API 接口：一个用于提交任务，另一个用于查询结果。
 
 from http import HTTPStatus
 from urllib.parse import urlparse, unquote
