@@ -1,0 +1,14 @@
+# DashScope Router 配置文件
+
+# User-Agent 白名单
+# 只有匹配以下规则的请求才会被放行，未匹配的请求返回 403
+# 支持通配符 * 匹配任意字符，不区分大小写
+# 留空列表或注释掉则不启用 UA 白名单（允许所有请求）
+ua_whitelist:
+  enabled: true
+  rules:
+    - "Open-WebUI/*"
+    # - "Mozilla/*"
+    # - "Python/*"
+    # - "curl/*"
+    # - "*"  # 允许所有 UA
