@@ -7,12 +7,12 @@ import dashscope
 import os
 import pathlib
 
-# 以下为北京地域url，若使用新加坡地域的模型，需将url替换为：https://dashscope-intl.aliyuncs.com/api/v1，若使用美国地域的模型，需将url替换为：https://dashscope-us.aliyuncs.com/api/v1
-dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
-
 # Support models
 # qwen3-asr-flash-filetrans, qwen3-asr-flash-filetrans-2025-11-17
 # qwen3-asr-flash, qwen3-asr-flash-2025-09-08
+
+# 以下为北京地域url，若使用新加坡地域的模型，需将url替换为：https://dashscope-intl.aliyuncs.com/api/v1，若使用美国地域的模型，需将url替换为：https://dashscope-us.aliyuncs.com/api/v1
+dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
 
 # 请替换为实际的音频文件路径
 file_path = "welcome.mp3"
