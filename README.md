@@ -21,12 +21,13 @@
 
 ## 支持的接口
 
-| 路由                       | 方法 | 说明                                  |
-| -------------------------- | ---- | ------------------------------------- |
-| `/v1/audio/transcriptions` | POST | 音频转文字（OpenAI Whisper API 兼容） |
-| `/v1/audio/speech`         | POST | 语音合成（OpenAI TTS API 兼容）       |
-| `/v1/models`               | GET  | 列出可用模型                          |
-| `/health`                  | GET  | 健康检查                              |
+| 路由                       | 方法 | 说明                                   |
+| -------------------------- | ---- | -------------------------------------- |
+| `/v1/audio/transcriptions` | POST | 音频转文字（OpenAI Whisper API 兼容）  |
+| `/v1/audio/speech`         | POST | 语音合成（OpenAI TTS API 兼容）        |
+| `/v1/images/generations`   | POST | 文本生成图像（OpenAI Images API 兼容） |
+| `/v1/models`               | GET  | 列出可用模型                           |
+| `/health`                  | GET  | 健康检查                               |
 
 ## 支持的模型
 
@@ -40,13 +41,14 @@
 
 ### 环境变量
 
-| 变量                 | 必须 | 说明                                                             |
-| -------------------- | ---- | ---------------------------------------------------------------- |
-| `DASHSCOPE_API_KEY`  | 否   | DashScope API Key（也可在请求 Header 中传入）                    |
-| `DASHSCOPE_BASE_URL` | 否   | DashScope API 地址，默认 `https://dashscope.aliyuncs.com/api/v1` |
-| `DEFAULT_ASR_MODEL`  | 否   | 默认模型，默认 `qwen3-asr-flash`                                 |
-| `DEFAULT_TTS_MODEL`  | 否   | 默认模型，默认 `qwen3-tts-flash`                                 |
-| `PORT`               | 否   | 监听端口，默认 `8000`                                            |
+| 变量                  | 必须 | 说明                                                             |
+| --------------------- | ---- | ---------------------------------------------------------------- |
+| `DASHSCOPE_API_KEY`   | 否   | DashScope API Key（也可在请求 Header 中传入）                    |
+| `DASHSCOPE_BASE_URL`  | 否   | DashScope API 地址，默认 `https://dashscope.aliyuncs.com/api/v1` |
+| `DEFAULT_ASR_MODEL`   | 否   | 默认模型，默认 `qwen3-asr-flash`                                 |
+| `DEFAULT_TTS_MODEL`   | 否   | 默认模型，默认 `qwen3-tts-flash`                                 |
+| `DEFAULT_IMAGE_MODEL` | 否   | 默认模型，默认 `qwen-image-plus`                                 |
+| `PORT`                | 否   | 监听端口，默认 `8000`                                            |
 
 ### 本地运行
 

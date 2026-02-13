@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 from utils.config import check_ua_allowed, get_config, load_config
 from routes.transcriptions import router as transcriptions_router
 from routes.speech import router as speech_router
+from routes.images import router as images_router
 from routes.models import router as models_router
 
 # ---------------------------------------------------------------------------
@@ -96,6 +97,7 @@ async def request_logging_and_ua_filter(request: Request, call_next):
 # ---------------------------------------------------------------------------
 app.include_router(transcriptions_router)
 app.include_router(speech_router)
+app.include_router(images_router)
 app.include_router(models_router)
 
 
