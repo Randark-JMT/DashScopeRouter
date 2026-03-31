@@ -30,22 +30,18 @@ router = APIRouter()
 DEFAULT_MODEL = os.getenv("DEFAULT_IMAGE_MODEL", "qwen-image-plus")
 
 # 同步模型（通过 MultiModalConversation.call 调用）
+# 注：使用前缀匹配，快照版本（如 qwen-image-max-2025-12-30）会自动匹配基础模型名
 SYNC_MODELS = {
     "qwen-image-max",
-    "qwen-image-max-2025-12-30",
     "qwen-image-plus",
-    "qwen-image-plus-2026-01-09",
     "qwen-image",
     "qwen-image-2.0",
-    "qwen-image-2.0-2026-03-03",
     "qwen-image-2.0-pro",
-    "qwen-image-2.0-pro-2026-03-03"
 }
 
 # 异步模型（通过 ImageSynthesis.call 调用，SDK 封装为同步）
 ASYNC_MODELS = {
     "qwen-image-plus",
-    "qwen-image-plus-2026-01-09",
     "qwen-image",
     "wan2.6-t2i",
     "wan2.5-t2i-preview",
@@ -59,7 +55,6 @@ ASYNC_MODELS = {
 # 仅支持同步的模型（即只能用 MultiModalConversation.call）
 SYNC_ONLY_MODELS = {
     "qwen-image-max",
-    "qwen-image-max-2025-12-30",
     "qwen-image-2.0-pro",
 }
 
@@ -100,12 +95,17 @@ def _normalize_size(size: str | None) -> str:
     return size.replace("x", "*").replace("X", "*")
 
 
+def _model_in_set(model: str, model_set: set) -> bool:
+    """前缀匹配：model 等于集合中某个基础名，或以「基础名-」开头（支持快照版本）。"""
+    return any(model == base or model.startswith(base + "-") for base in model_set)
+
+
 def _use_async_api(model: str) -> bool:
     """判断该模型是否应使用 ImageSynthesis（异步）API。"""
-    if model in ASYNC_ONLY_MODELS:
+    if _model_in_set(model, ASYNC_ONLY_MODELS):
         return True
     # 对于同时支持两种方式的模型，优先使用同步 MultiModalConversation
-    if model in SYNC_ONLY_MODELS or model in SYNC_MODELS:
+    if _model_in_set(model, SYNC_ONLY_MODELS) or _model_in_set(model, SYNC_MODELS):
         return False
     # 未知模型默认使用异步 API
     return True

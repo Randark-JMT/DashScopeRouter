@@ -27,19 +27,20 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 DEFAULT_MODEL = os.getenv("DEFAULT_TTS_MODEL", "qwen3-tts-flash")
 
+# 注：使用前缀匹配，快照版本（如 qwen3-tts-flash-2025-11-27）会自动匹配对应基础模型名
 SUPPORTED_MODELS = [
     "qwen3-tts-instruct-flash",
-    "qwen3-tts-instruct-flash-2026-01-26",
-    "qwen3-tts-vd-2026-01-26",
-    "qwen3-tts-vc-2026-01-22",
+    "qwen3-tts-vd",
+    "qwen3-tts-vc",
     "qwen3-tts-flash",
-    "qwen3-tts-flash-2025-11-27",
-    "qwen3-tts-flash-2025-09-18",
     "qwen-tts",
     "qwen-tts-latest",
-    "qwen-tts-2025-05-22",
-    "qwen-tts-2025-04-10",
 ]
+
+
+def _is_supported_model(model: str) -> bool:
+    """前缀匹配：model 等于列表中某个基础名，或以「基础名-」开头（支持快照版本）。"""
+    return any(model == base or model.startswith(base + "-") for base in SUPPORTED_MODELS)
 
 # OpenAI voice → DashScope voice 映射
 # OpenAI 标准 voice: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer

@@ -24,12 +24,16 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 DEFAULT_MODEL = os.getenv("DEFAULT_ASR_MODEL", "qwen3-asr-flash")
 
+# 注：使用前缀匹配，快照版本（如 qwen3-asr-flash-2025-09-08）会自动匹配对应基础模型名
 SUPPORTED_MODELS = [
     "qwen3-asr-flash",
-    "qwen3-asr-flash-2025-09-08",
     "qwen3-asr-flash-filetrans",
-    "qwen3-asr-flash-filetrans-2025-11-17",
 ]
+
+
+def _is_supported_model(model: str) -> bool:
+    """前缀匹配：model 等于列表中某个基础名，或以「基础名-」开头（支持快照版本）。"""
+    return any(model == base or model.startswith(base + "-") for base in SUPPORTED_MODELS)
 
 
 # ---------------------------------------------------------------------------
