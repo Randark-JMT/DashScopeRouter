@@ -36,6 +36,10 @@ SYNC_MODELS = {
     "qwen-image-plus",
     "qwen-image-plus-2026-01-09",
     "qwen-image",
+    "qwen-image-2.0",
+    "qwen-image-2.0-2026-03-03",
+    "qwen-image-2.0-pro",
+    "qwen-image-2.0-pro-2026-03-03"
 }
 
 # 异步模型（通过 ImageSynthesis.call 调用，SDK 封装为同步）
@@ -56,6 +60,7 @@ ASYNC_MODELS = {
 SYNC_ONLY_MODELS = {
     "qwen-image-max",
     "qwen-image-max-2025-12-30",
+    "qwen-image-2.0-pro",
 }
 
 # 仅支持异步的模型（即只能用 ImageSynthesis.call）
