@@ -26,6 +26,7 @@
 | `/v1/audio/transcriptions` | POST | 音频转文字（OpenAI Whisper API 兼容）  |
 | `/v1/audio/speech`         | POST | 语音合成（OpenAI TTS API 兼容）        |
 | `/v1/images/generations`   | POST | 文本生成图像（OpenAI Images API 兼容） |
+| `/v1/images/edits`         | POST | 图像编辑（OpenAI Images API 兼容）     |
 | `/v1/models`               | GET  | 列出可用模型                           |
 | `/health`                  | GET  | 健康检查                               |
 
@@ -34,7 +35,9 @@
 - `qwen-tts*`
 - `qwen3-tts*`
 - `qwen3-asr*`
-- `qwen-image*`
+- 图像生成：`qwen-image-2.0*`
+- 图像编辑：`qwen-image-2.0*`、`qwen-image-edit*`
+- 兼容保留：`qwen-image*`、`wan*`
 - `wan*`
 
 ## 快速开始
