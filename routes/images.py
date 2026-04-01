@@ -706,12 +706,23 @@ async def _extract_input_images(body: dict, form_data) -> list[str]:
     """从 JSON / Form 中提取输入图像（URL、data URI 或上传文件转 data URI）。"""
     raw_items = []
 
-    for key in ("image", "images", "input_image", "input_images", "image_url", "image_urls"):
+    image_keys = (
+        "image",
+        "images",
+        "image[]",
+        "images[]",
+        "input_image",
+        "input_images",
+        "image_url",
+        "image_urls",
+    )
+
+    for key in image_keys:
         if key in body and body[key] is not None:
             raw_items.append(body[key])
 
     if form_data is not None:
-        for key in ("image", "images", "input_image", "input_images", "image_url", "image_urls"):
+        for key in image_keys:
             if hasattr(form_data, "getlist"):
                 raw_items.extend(form_data.getlist(key))
 
