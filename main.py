@@ -11,6 +11,9 @@ import time
 import dashscope
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import JSONResponse
 
 from utils.config import check_ua_allowed, get_config, load_config
@@ -49,6 +52,51 @@ app = FastAPI(
     description="OpenAI 兼容的多模态 API 中转服务",
     version="1.0.0",
 )
+
+
+# ---------------------------------------------------------------------------
+# 全局异常处理：输出详细错误日志，便于排障
+# ---------------------------------------------------------------------------
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_logger(request: Request, exc: StarletteHTTPException):
+    logger.error(
+        "HTTP异常: %s %s | status=%s | detail=%s",
+        request.method,
+        request.url.path,
+        exc.status_code,
+        exc.detail,
+    )
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_logger(request: Request, exc: RequestValidationError):
+    logger.error(
+        "请求校验异常: %s %s | errors=%s",
+        request.method,
+        request.url.path,
+        exc.errors(),
+    )
+    return await request_validation_exception_handler(request, exc)
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_logger(request: Request, exc: Exception):
+    logger.exception(
+        "未处理异常: %s %s | error=%s",
+        request.method,
+        request.url.path,
+        exc,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": {
+                "message": "Internal Server Error",
+                "type": "internal_error",
+            }
+        },
+    )
 
 
 # ---------------------------------------------------------------------------
