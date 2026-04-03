@@ -200,7 +200,8 @@ async def images_generations(
 
     ds_model = _resolve_model(model_raw)
 
-    if _model_in_set(ds_model, IMAGE_EDIT_MODELS):
+    # 仅当模型属于纯编辑模型（不在生成模型集合中）时才拒绝
+    if _model_in_set(ds_model, IMAGE_EDIT_MODELS) and not _model_in_set(ds_model, SYNC_MODELS):
         raise HTTPException(
             status_code=400,
             detail=build_openai_error(
