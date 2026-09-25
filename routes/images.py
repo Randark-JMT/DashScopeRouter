@@ -38,6 +38,8 @@ SYNC_MODELS = {
     "qwen-image-max",
     "qwen-image-plus",
     "qwen-image",
+    "qwen-image-3.0",
+    "qwen-image-3.0-pro",
     "qwen-image-2.0",
     "qwen-image-2.0-pro",
 }
@@ -58,6 +60,7 @@ ASYNC_MODELS = {
 # 仅支持同步的模型（即只能用 MultiModalConversation.call）
 SYNC_ONLY_MODELS = {
     "qwen-image-max",
+    "qwen-image-3.0-pro",
     "qwen-image-2.0-pro",
 }
 
@@ -74,6 +77,8 @@ ASYNC_ONLY_MODELS = {
 
 # 所有支持的模型列表（用于 /v1/models 展示）
 IMAGE_EDIT_MODELS = {
+    "qwen-image-3.0-pro",
+    "qwen-image-3.0",
     "qwen-image-2.0-pro",
     "qwen-image-2.0-pro-2026-03-03",
     "qwen-image-2.0",
