@@ -35,8 +35,8 @@
 - `qwen-tts*`
 - `qwen3-tts*`
 - `qwen3-asr*`
-- 图像生成：`qwen-image-2.0*`
-- 图像编辑：`qwen-image-2.0*`、`qwen-image-edit*`
+- 图像生成：`qwen-image-3.0*`、`qwen-image-2.0*`
+- 图像编辑：`qwen-image-3.0*`、`qwen-image-2.0*`、`qwen-image-edit*`
 - 兼容保留：`qwen-image*`、`wan*`
 - `wan*`
 
