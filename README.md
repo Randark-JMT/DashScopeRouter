@@ -51,6 +51,7 @@
 | `DEFAULT_ASR_MODEL`   | 否   | 默认模型，默认 `qwen3-asr-flash`                                 |
 | `DEFAULT_TTS_MODEL`   | 否   | 默认模型，默认 `qwen3-tts-flash`                                 |
 | `DEFAULT_IMAGE_MODEL` | 否   | 默认模型，默认 `qwen-image-plus`                                 |
+| `TIMEOUT`             | 否   | 全局请求超时（秒），默认 `300`                                   |
 | `PORT`                | 否   | 监听端口，默认 `8000`                                            |
 
 ### 本地运行

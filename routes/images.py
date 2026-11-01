@@ -21,6 +21,7 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from utils.common import build_openai_error, extract_api_key
+from utils.config import TIMEOUT
 
 logger = logging.getLogger("dashscope-router")
 
@@ -236,6 +237,7 @@ async def images_generations(
                 size=size,
                 prompt_extend=prompt_extend,
                 watermark=watermark,
+                request_timeout=TIMEOUT,
             )
         else:
             # ---- 同步 API（MultiModalConversation.call） ----
@@ -552,6 +554,7 @@ async def _call_sync_api(
             negative_prompt=negative_prompt or "",
             size=size,
             n=n,
+            request_timeout=TIMEOUT,
         )
 
     rsp = await loop.run_in_executor(None, _blocking_call)
@@ -645,6 +648,7 @@ async def _call_edit_api(
             negative_prompt=negative_prompt or " ",
             size=size,
             n=n,
+            request_timeout=TIMEOUT,
         )
 
     rsp = await loop.run_in_executor(None, _blocking_call)
@@ -778,7 +782,7 @@ async def _download_as_base64(url: str) -> str | None:
     import httpx
 
     try:
-        async with httpx.AsyncClient(timeout=120) as client:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
             resp = await client.get(url)
             resp.raise_for_status()
             return base64.b64encode(resp.content).decode("utf-8")

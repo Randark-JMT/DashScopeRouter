@@ -14,6 +14,7 @@ from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, PlainTextResponse
 
 from utils.common import build_openai_error, extract_api_key, resolve_mime_type
+from utils.config import TIMEOUT
 
 logger = logging.getLogger("dashscope-router")
 
@@ -123,6 +124,7 @@ async def audio_transcriptions(
             messages=messages,
             result_format="message",
             asr_options=asr_options,
+            request_timeout=TIMEOUT,
         )
         elapsed = time.time() - start_ts
     except Exception as e:

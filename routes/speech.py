@@ -17,6 +17,7 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import Response
 
 from utils.common import build_openai_error, extract_api_key
+from utils.config import TIMEOUT
 
 logger = logging.getLogger("dashscope-router")
 
@@ -182,6 +183,7 @@ async def audio_speech(
             text=text,
             voice=ds_voice,
             stream=False,
+            request_timeout=TIMEOUT,
         )
         elapsed = time.time() - start_ts
     except Exception as e:
@@ -234,7 +236,7 @@ async def audio_speech(
         elif audio_url:
             # 从 URL 下载音频
             logger.info("从 URL 下载音频: %s", audio_url[:120])
-            async with httpx.AsyncClient(timeout=60) as client:
+            async with httpx.AsyncClient(timeout=TIMEOUT) as client:
                 dl_resp = await client.get(audio_url)
                 dl_resp.raise_for_status()
                 audio_bytes = dl_resp.content

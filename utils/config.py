@@ -12,6 +12,25 @@ import yaml
 
 logger = logging.getLogger("dashscope-router")
 
+
+def _load_timeout() -> int:
+    value = os.getenv("TIMEOUT", "300")
+    try:
+        timeout = int(value)
+    except ValueError as exc:
+        raise ValueError(
+            f"TIMEOUT must be a positive integer number of seconds, got {value!r}"
+        ) from exc
+
+    if timeout <= 0:
+        raise ValueError(
+            f"TIMEOUT must be a positive integer number of seconds, got {value!r}"
+        )
+    return timeout
+
+
+TIMEOUT = _load_timeout()
+
 # ---------------------------------------------------------------------------
 # 默认配置
 # ---------------------------------------------------------------------------
